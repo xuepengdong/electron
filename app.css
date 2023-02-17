@@ -1,0 +1,14 @@
+html{
+    height: 100%;
+}
+
+body{
+    height: 100%;
+    /*user-select: none;*/
+    height: 100%;
+    -webkit-app-region:drag;
+}
+
+input{
+    -webkit-app-region:no-drag;
+}
