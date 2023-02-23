@@ -1,7 +1,127 @@
-const {app, BrowserWindow, ipcMain, dialog} = require('electron');
-const path = require('path')
-const WinState = require("electron-win-state").default
-console.log(WinState)
+const {app, BrowserWindow, ipcMain, dialog,Menu } = require('electron');
+const path = require('path');
+const WinState = require("electron-win-state").default;
+
+const isMac = process.platform === 'darwin'
+const template = [
+    // { role: 'appMenu' }
+    ...(isMac ? [{
+        label: app.name,
+        submenu: [
+            { role: 'about' },
+            { type: 'separator' },
+            { role: 'services' },
+            { type: 'separator' },
+            { role: 'hide' },
+            { role: 'hideOthers' },
+            { role: 'unhide' },
+            { type: 'separator' },
+            { role: 'quit' }
+        ]
+    }] : []),
+    // { role: 'fileMenu' }
+    {
+        label: 'File',
+        submenu: [
+            isMac ? { role: 'close' } : { role: 'quit' }
+        ]
+    },
+    // { role: 'editMenu' }
+    {
+        label: '动作',
+        submenu: [
+            {
+                label: 'DevTools',
+                role: 'toggleDevTools'
+            },
+            {
+                role:'toggleFullScreen'
+            },
+            {
+                label: 'Greet',
+                click:()=>{
+                    console.log('hello');
+                }
+            }
+        ]
+    },
+    {
+        label: 'Edit',
+        submenu: [
+            { role: 'undo' },
+            { role: 'redo' },
+            { type: 'separator' },
+            { role: 'cut' },
+            { role: 'copy' },
+            { role: 'paste' },
+            ...(isMac ? [
+                { role: 'pasteAndMatchStyle' },
+                { role: 'delete' },
+                { role: 'selectAll' },
+                { type: 'separator' },
+                {
+                    label: 'Speech',
+                    submenu: [
+                        { role: 'startSpeaking' },
+                        { role: 'stopSpeaking' }
+                    ]
+                }
+            ] : [
+                { role: 'delete' },
+                { type: 'separator' },
+                { role: 'selectAll' }
+            ])
+        ]
+    },
+    // { role: 'viewMenu' }
+    {
+        label: 'View',
+        submenu: [
+            { role: 'reload' },
+            { role: 'forceReload' },
+            { role: 'toggleDevTools' },
+            { type: 'separator' },
+            { role: 'resetZoom' },
+            { role: 'zoomIn' },
+            { role: 'zoomOut' },
+            { type: 'separator' },
+            { role: 'togglefullscreen' }
+        ]
+    },
+
+    // { role: 'windowMenu' }
+    {
+        label: 'Window',
+        submenu: [
+            { role: 'minimize' },
+            { role: 'zoom' },
+            ...(isMac ? [
+                { type: 'separator' },
+                { role: 'front' },
+                { type: 'separator' },
+                { role: 'window' }
+            ] : [
+                { role: 'close' }
+            ])
+        ]
+    },
+    {
+        role: 'help',
+        submenu: [
+            {
+                label: 'Learn More',
+                click: async () => {
+                    const { shell } = require('electron')
+                    await shell.openExternal('https://electronjs.org')
+                }
+            }
+        ]
+    }
+];
+
+
+const menu = Menu.buildFromTemplate(template)
+Menu.setApplicationMenu(menu)
 
 const winState = new WinState({
     defaultWidth: 800,
@@ -31,13 +151,16 @@ const createWindow = () => {
     win.loadFile('index.html')
 
     //打开开发者工具
-    win.webContents.openDevTools()
+    // win.webContents.openDevTools();
+    const wc  = win.webContents;
+    // wc.openDevTools()
+
+
     //暂时关闭安全警告
     // process.env['ELECTRON_DISABLE_SECURITY_WARNNGS'] = 'true'
 
 
-    const wc  = win.webContents;
-    wc.openDevTools()
+
     wc.on('did-finish-load', ()=>{
         console.log('finished.')
     })
@@ -62,21 +185,22 @@ const createWindow = () => {
         // })
 
 
-
         //存储到文件夹中
         // dialog.showSaveDialog().then(result=>{
         //     console.log(result.filePath)
         // })
 
-        const answer = ['Yes', 'No', 'Maybe']
-        dialog.showMessageBox({
-            title:'Message Box',
-            message:'please select an option',
-            detail:'Message details',
-            buttons:answer
-        }).then(({response}) =>{
-            console.log(`User select: ${answer['response']}`)
-        })
+
+        //右键弹窗选择框
+        // const answer = ['Yes', 'No', 'Maybe']
+        // dialog.showMessageBox({
+        //     title:'Message Box',
+        //     message:'please select an option',
+        //     detail:'Message details',
+        //     buttons:answer
+        // }).then(({response}) =>{
+        //     console.log(`User select: ${answer['response']}`)
+        // })
 
     })
 
